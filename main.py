@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Request, HTTPException, Depends
+from fastapi import FastAPI, Request, HTTPException, Depends, Response
 from fastapi.security import APIKeyHeader
 import httpx
 import os
@@ -20,14 +20,21 @@ async def verify_api_key(api_key: str = Depends(api_key_header)):
 @app.api_route("/token/{path:path}", methods=["GET", "POST", "PUT", "DELETE"])
 async def proxy_token(request: Request, path: str):
     async with httpx.AsyncClient() as client:
-        url = f"{MS_TOKEN_URL}/{path}"
+        url = f"{MS_TOKEN_URL.rstrip('/')}/{path.lstrip('/')}"
+        body = await request.body()
+        headers = {k: v for k, v in request.headers.items() if k.lower() != "host"}
         resp = await client.request(
             method=request.method,
             url=url,
-            headers=dict(request.headers),
-            content=await request.body()
+            headers=headers,
+            content=body,
+            timeout=60.0
         )
-        return resp.json()
+        return Response(
+            content=resp.content, 
+            status_code=resp.status_code, 
+            media_type=resp.headers.get("content-type")
+        )
     
 @app.api_route("/juegos/{path:path}", methods=["GET", "POST", "PUT", "DELETE"])
 async def proxy_games(request: Request, path: str):
