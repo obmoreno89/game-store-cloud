@@ -39,7 +39,7 @@ async def proxy_token(request: Request):
 @app.api_route("/juegos/{path:path}", methods=["GET", "POST", "PUT", "DELETE"])
 async def proxy_games(request: Request):
     async with httpx.AsyncClient() as client:
-        url = f"{MS_GAMES_URL.rstrip("/")}/game-store/v1/operaciones/juegos"
+        url = f"{MS_GAMES_URL.rstrip("/")}/"
         
         resp = await client.request(
             method=request.method,
