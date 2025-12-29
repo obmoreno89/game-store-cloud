@@ -33,7 +33,7 @@ async def proxy_token(request: Request, path: str):
         return Response(
             content=resp.content, 
             status_code=resp.status_code, 
-            media_type=resp.headers.get("content-type")
+            headers=dict(resp.headers)
         )
     
 @app.api_route("/juegos/{path:path}", methods=["GET", "POST", "PUT", "DELETE"])
