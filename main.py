@@ -47,4 +47,8 @@ async def proxy_games(request: Request):
             headers=dict(request.headers),
             content=await request.body()
         )
-        return resp
+        return Response(
+            content=resp.content,
+            status_code=resp.status_code,
+            headers=dict(resp.headers)
+        )
