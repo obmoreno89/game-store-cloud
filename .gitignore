@@ -1,0 +1,15 @@
+# Entornos virtuales
+venv/
+env/
+.env
+
+# Python
+__pycache__/
+*.py[cod]
+
+# Docker y Base de datos local
+postgres_data/
+
+# IDEs
+.vscode/
+.idea/

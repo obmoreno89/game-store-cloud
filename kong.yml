@@ -1,0 +1,28 @@
+_format_version: '3.0'
+
+consumers:
+  - username: frontend-web
+    keyauth_credentials:
+      - key: d92024fe3f2027d3bcca3dc5b0efdce85ea8ec5ca5f61eea352b40e344497397
+services:
+  - name: ms-juegos
+    url: http://ms-juegos:8000/game-store/v1/operaciones/juegos
+    plugins:
+      - name: key-auth
+        config:
+          key_names: [api_key]
+    connect_timeout: 60000
+    routes:
+      - name: juegos-route
+        paths:
+          - /juegos
+        strip_path: true
+
+  - name: ms-token
+    url: http://ms-token:8000/oauth2/v1/token
+    connect_timeout: 60000
+    routes:
+      - name: token-route
+        paths:
+          - /token
+        strip_path: true
