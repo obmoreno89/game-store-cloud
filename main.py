@@ -17,7 +17,7 @@ async def verify_api_key(api_key: str = Depends(api_key_header)):
         raise HTTPException(status_code=403, detail="API Key invalida o ausente")
     return api_key
 
-@app.api_route("/token/{path:path}", methods=["GET", "POST", "PUT", "DELETE"])
+@app.post("/token")
 async def proxy_token(request: Request):
     async with httpx.AsyncClient() as client:
         url = f"{MS_TOKEN_URL.rstrip('/')}/oauth2/v1/token"
@@ -36,7 +36,7 @@ async def proxy_token(request: Request):
             headers=dict(resp.headers)
         )
     
-@app.api_route("/juegos", methods=["GET", "POST", "PUT", "DELETE"])
+@app.get("/juegos")
 async def proxy_games(request: Request):
     async with httpx.AsyncClient() as client:
         url = f"{MS_GAMES_URL.rstrip("/")}/game-store/v1/operaciones/juegos"
@@ -45,7 +45,7 @@ async def proxy_games(request: Request):
         resp = await client.get(
             url,
             headers=headers,
-            params=request.query_params, # Importante para la paginación del micro
+            params=request.query_params,
             timeout=60.0
         )
         return Response(
