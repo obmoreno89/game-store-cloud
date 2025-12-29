@@ -40,7 +40,7 @@ async def proxy_token(request: Request):
 async def proxy_games(request: Request):
     async with httpx.AsyncClient() as client:
         url = f"{MS_GAMES_URL.rstrip("/")}/"
-        
+        print(f"DEBUG: Redirigiendo petición a: {url}")
         resp = await client.request(
             method=request.method,
             url=url,
