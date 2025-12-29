@@ -20,7 +20,7 @@ async def verify_api_key(api_key: str = Depends(api_key_header)):
 @app.api_route("/token/{path:path}", methods=["GET", "POST", "PUT", "DELETE"])
 async def proxy_token(request: Request, path: str):
     async with httpx.AsyncClient() as client:
-        url = f"{MS_TOKEN_URL.rstrip('/')}/{path.lstrip('/')}"
+        url = f"{MS_TOKEN_URL.rstrip('/')}/oauth2/v1/token"
         body = await request.body()
         headers = {k: v for k, v in request.headers.items() if k.lower() != "host"}
         resp = await client.request(
