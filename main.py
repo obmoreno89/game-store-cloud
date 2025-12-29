@@ -36,19 +36,20 @@ async def proxy_token(request: Request):
             headers=dict(resp.headers)
         )
     
-@app.api_route("/juegos/{path:path}", methods=["GET", "POST", "PUT", "DELETE"])
+@app.api_route("/juegos", methods=["GET", "POST", "PUT", "DELETE"])
 async def proxy_games(request: Request):
     async with httpx.AsyncClient() as client:
         url = f"{MS_GAMES_URL.rstrip("/")}/game-store/v1/operaciones/juegos"
-        print(f"DEBUG: Redirigiendo petición a: {url}")
-        resp = await client.request(
-            method=request.method,
-            url=url,
-            headers=dict(request.headers),
-            content=await request.body()
+       
+        headers = {k: v for k, v in request.headers.items() if k.lower() != "host"}
+        resp = await client.get(
+            url,
+            headers=headers,
+            params=request.query_params, # Importante para la paginación del micro
+            timeout=60.0
         )
         return Response(
             content=resp.content,
             status_code=resp.status_code,
-            headers=dict(resp.headers)
+            media_type=resp.headers.get("content-type")
         )
