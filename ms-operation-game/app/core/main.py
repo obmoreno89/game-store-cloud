@@ -11,7 +11,7 @@ from fastapi.security import HTTPBearer
 security = HTTPBearer()
 
 app = FastAPI(title="{URL}/game-store/v1/operaciones/juegos", version= "1.0.0",
-    description="API para hacer operaciones nivel CRUD", swagger_ui_parameters={"operationsSorter": "method"}, root_path="/juegos", 
+    description="API para hacer operaciones nivel CRUD", swagger_ui_parameters={"operationsSorter": "method"}, 
     openapi_url="/openapi.json",
     docs_url="/docs")
 
