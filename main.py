@@ -3,7 +3,7 @@ from fastapi.security import APIKeyHeader
 import httpx
 import os
 
-app = FastAPI("Api Gateway")
+app = FastAPI(title="Api Gateway")
 MS_GAMES_URL = os.getenv("MS_GAMES_URL")
 MS_TOKEN_URL = os.getenv("MS_TOKEN_URL")
 
