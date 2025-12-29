@@ -18,7 +18,7 @@ async def verify_api_key(api_key: str = Depends(api_key_header)):
     return api_key
 
 @app.api_route("/token/{path:path}", methods=["GET", "POST", "PUT", "DELETE"])
-async def proxy_token(request: Request, path: str):
+async def proxy_token(request: Request):
     async with httpx.AsyncClient() as client:
         url = f"{MS_TOKEN_URL.rstrip('/')}/oauth2/v1/token"
         body = await request.body()
@@ -37,9 +37,10 @@ async def proxy_token(request: Request, path: str):
         )
     
 @app.api_route("/juegos/{path:path}", methods=["GET", "POST", "PUT", "DELETE"])
-async def proxy_games(request: Request, path: str):
+async def proxy_games(request: Request):
     async with httpx.AsyncClient() as client:
-        url = f"{MS_GAMES_URL}/{path}"
+        url = f"{MS_GAMES_URL.rstrip("/")}//game-store/v1/operaciones/juegos"
+        
         resp = await client.request(
             method=request.method,
             url=url,
