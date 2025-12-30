@@ -49,7 +49,7 @@ async def proxy_games(request: Request):
             timeout=60.0
         )
         return Response(
-            content=resp.content,
-            status_code=resp.status_code,
-            media_type=resp.headers.get("content-type")
+            content=resp.content, 
+            status_code=resp.status_code, 
+            headers=dict(resp.headers)
         )
