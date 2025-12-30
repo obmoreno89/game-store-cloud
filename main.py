@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Request, HTTPException, Depends, Response
+from fastapi import FastAPI, Request, HTTPException, Depends, Response, status
 from fastapi.security import APIKeyHeader
 import httpx
 import os
@@ -13,9 +13,12 @@ VALID_API_KEY = os.getenv("VALID_API_KEY")
 api_key_header = APIKeyHeader(name=API_KEY_NAME, auto_error=False)
 
 async def verify_api_key(api_key: str = Depends(api_key_header)):
-    if api_key != VALID_API_KEY:
-        raise HTTPException(status_code=403, detail="API Key invalida o ausente")
-    return api_key
+   if api_key is None or api_key.strip() == "" or api_key != VALID_API_KEY:
+       raise HTTPException(
+           status_code=status.HTTP_401_UNAUTHORIZED,
+           detail="API key invalida"
+       )
+   return api_key
 
 @app.post("/token")
 async def proxy_token(request: Request):
