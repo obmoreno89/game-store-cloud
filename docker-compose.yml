@@ -1,25 +1,6 @@
-services:
-  kong:
-    image: kong:3.4
-    container_name: kong-gateway
-    user: '0:0'
-    environment:
-      KONG_DATABASE: 'off'
-      KONG_DECLARATIVE_CONFIG: /usr/local/kong/declarative/kong.yml
-      KONG_PROXY_LISTEN: 0.0.0.0:80
-      KONG_LOG_LEVEL: notice
-    volumes:
-      - ./kong.yml:/usr/local/kong/declarative/kong.yml:ro
-    ports:
-      - '80:80'
-    networks:
-      - game-network
-    depends_on:
-      ms-juegos:
-        condition: service_healthy
-      ms-token:
-        condition: service_healthy
+version: '3.8'
 
+services:
   db:
     image: postgres:15
     container_name: db-postgres
@@ -44,33 +25,72 @@ services:
     container_name: ms-juegos
     restart: on-failure
     environment:
-      - DATABASE_URL=postgresql://omar:omar11mi@db:5432/storeGames
+      - IS_PROD=false
+      - DATABASE_URL_DEV=postgresql://omar:omar11mi@db:5432/storeGames
+    ports:
+      - '8002:8000'
     networks:
       - game-network
     depends_on:
       db:
         condition: service_healthy
-    # --- HEALTHCHECK PARA FASTAPI ---
     healthcheck:
-      test: ['CMD', 'curl', '-f', 'http://localhost:8000/docs']
-      interval: 15s
-      timeout: 10s
-      retries: 5
-      start_period: 20s
+      # Verifica el puerto INTERNO 8000 usando Python
+      test:
+        [
+          'CMD-SHELL',
+          'python3 -c ''import socket; s = socket.socket(); s.connect(("localhost", 8000))'' || exit 1',
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
 
   ms-token:
     build: ./ms-token
     container_name: ms-token
     restart: on-failure
+    environment:
+      - IS_PROD=false
+      - DATABASE_URL_DEV=postgresql://omar:omar11mi@db:5432/storeGames
+    ports:
+      - '8001:8000'
     networks:
       - game-network
-    # --- HEALTHCHECK PARA FASTAPI ---
+    depends_on:
+      db:
+        condition: service_healthy
     healthcheck:
-      test: ['CMD', 'curl', '-f', 'http://localhost:8000/docs']
-      interval: 15s
-      timeout: 10s
-      retries: 5
-      start_period: 20s
+      # Verifica el puerto INTERNO 8000 usando Python
+      test:
+        [
+          'CMD-SHELL',
+          'python3 -c ''import socket; s = socket.socket(); s.connect(("localhost", 8000))'' || exit 1',
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  api-gateway:
+    build: .
+    container_name: api-gateway
+    restart: on-failure
+    environment:
+      - IS_PROD=false
+      - MS_GAMES_URL_DEV=http://ms-juegos:8000
+      - MS_TOKEN_URL_DEV=http://ms-token:8000
+      - API_KEY_NAME=frontend-web
+      - VALID_API_KEY=d92024fe3f2027d3bcca3dc5b0efdce85ea8ec5ca5f61eea352b40e344497397
+    ports:
+      - '8000:8000'
+    networks:
+      - game-network
+    depends_on:
+      ms-juegos:
+        condition: service_healthy
+      ms-token:
+        condition: service_healthy
 
 networks:
   game-network:

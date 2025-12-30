@@ -26,10 +26,10 @@ async def verify_api_key(api_key: str = Depends(api_key_header)):
 async def proxy_token(request: Request):
     async with httpx.AsyncClient() as client:
         url: str
-        if IS_PROD:
+        if IS_PROD == "True":
             url = f"{MS_TOKEN_URL.rstrip('/')}/oauth2/v1/token"
         else: 
-            url = f"{MS_TOKEN_URL_DEV.rstrip('/')}//oauth2/v1/token"   
+            url = f"{MS_TOKEN_URL_DEV.rstrip('/')}/oauth2/v1/token"   
         body = await request.body()
         headers = {k: v for k, v in request.headers.items() if k.lower() != "host"}
         resp = await client.request(
@@ -49,10 +49,10 @@ async def proxy_token(request: Request):
 async def proxy_games(request: Request, api_key: str = Depends(verify_api_key)):
     async with httpx.AsyncClient() as client:
        url: str
-       if IS_PROD:
-            url = f"{MS_GAMES_URL.rstrip("/")}/game-store/v1/operaciones/juegos"
+       if IS_PROD == "True":
+            url = f"{MS_GAMES_URL.rstrip('/')}/game-store/v1/operaciones/juegos"
        else:
-            url = f"{MS_GAMES_URL_DEV.rstrip("/")}/game-store/v1/operaciones/juegos"    
+            url = f"{MS_GAMES_URL_DEV.rstrip('/')}/game-store/v1/operaciones/juegos"    
        
     
        headers = {k: v for k, v in request.headers.items() if k.lower() != "host"}
