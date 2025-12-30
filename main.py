@@ -4,9 +4,11 @@ import httpx
 import os
 
 app = FastAPI(title="Api Gateway", redirect_slashes=False)
+IS_PROD = os.getenv("IS_PROD",)
 MS_GAMES_URL = os.getenv("MS_GAMES_URL")
+MS_GAMES_URL_DEV = os.getenv("MS_GAMES_URL_DEV")
 MS_TOKEN_URL = os.getenv("MS_TOKEN_URL")
-
+MS_TOKEN_URL_DEV = os.getenv("MS_TOKEN_URL_DEV")
 API_KEY_NAME = os.getenv("API_KEY_NAME")
 VALID_API_KEY = os.getenv("VALID_API_KEY")
 
@@ -23,7 +25,11 @@ async def verify_api_key(api_key: str = Depends(api_key_header)):
 @app.post("/token")
 async def proxy_token(request: Request):
     async with httpx.AsyncClient() as client:
-        url = f"{MS_TOKEN_URL.rstrip('/')}/oauth2/v1/token"
+        url: str
+        if IS_PROD:
+            url = f"{MS_TOKEN_URL.rstrip('/')}/oauth2/v1/token"
+        else: 
+            url = f"{MS_TOKEN_URL_DEV.rstrip('/')}//oauth2/v1/token"   
         body = await request.body()
         headers = {k: v for k, v in request.headers.items() if k.lower() != "host"}
         resp = await client.request(
@@ -42,16 +48,21 @@ async def proxy_token(request: Request):
 @app.get("/juegos")
 async def proxy_games(request: Request, api_key: str = Depends(verify_api_key)):
     async with httpx.AsyncClient() as client:
-        url = f"{MS_GAMES_URL.rstrip("/")}/game-store/v1/operaciones/juegos"
+       url: str
+       if IS_PROD:
+            url = f"{MS_GAMES_URL.rstrip("/")}/game-store/v1/operaciones/juegos"
+       else:
+            url = f"{MS_GAMES_URL_DEV.rstrip("/")}/game-store/v1/operaciones/juegos"    
        
-        headers = {k: v for k, v in request.headers.items() if k.lower() != "host"}
-        resp = await client.get(
+    
+       headers = {k: v for k, v in request.headers.items() if k.lower() != "host"}
+       resp = await client.get(
             url,
             headers=headers,
             params=request.query_params,
             timeout=60.0
         )
-        return Response(
+       return Response(
             content=resp.content, 
             status_code=resp.status_code, 
             headers=dict(resp.headers)
