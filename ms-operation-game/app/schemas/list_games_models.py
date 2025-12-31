@@ -1,8 +1,8 @@
 from typing import Optional
 from sqlmodel import Field, SQLModel
+from pydantic import ConfigDict
 
 class ListGameBase(SQLModel):
-    id: Optional[int] = Field(default=None, primary_key=True)
     name: str = Field(index=True, max_length=200)
     background_image: Optional[str] = None
     rating: Optional[float] = None
@@ -28,6 +28,7 @@ class ListGameRead(ListGameBase):
     platforms_xbox_id: int = 1
     platforms_pc_id: int = 2
     platforms_ps_id: int = 3
+    model_config = ConfigDict(from_attributes=True)
     
 class ListGame(ListGameBase, table=True):
     __tablename__ = "list_game"

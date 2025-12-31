@@ -35,7 +35,6 @@ services:
       db:
         condition: service_healthy
     healthcheck:
-      # Verifica el puerto INTERNO 8000 usando Python
       test:
         [
           'CMD-SHELL',
@@ -61,7 +60,6 @@ services:
       db:
         condition: service_healthy
     healthcheck:
-      # Verifica el puerto INTERNO 8000 usando Python
       test:
         [
           'CMD-SHELL',
