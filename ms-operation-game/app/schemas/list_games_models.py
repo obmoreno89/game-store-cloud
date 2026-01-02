@@ -30,6 +30,7 @@ class ListGameRead(ListGameBase):
     platforms_ps_id: int = 3
     model_config = ConfigDict(from_attributes=True)
     
+    
 class ListGame(ListGameBase, table=True):
     __tablename__ = "list_game"
     

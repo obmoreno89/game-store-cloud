@@ -90,3 +90,28 @@ async def proxy_games_for_id(request: Request, game_id: int, api_key: str = Depe
             status_code=resp.status_code, 
             headers=dict(resp.headers)
         )
+
+@app.patch("/juegos/parcial/{game_id}")
+async def proxy_games_for_id(request: Request, game_id: int, api_key: str = Depends(verify_api_key)):
+    body = await request.body()
+    async with httpx.AsyncClient() as client:
+       url: str
+       if IS_PROD == "True":
+            url = f"{MS_GAMES_URL.rstrip('/')}/game-store/v1/operaciones/juegos/parcial/{game_id}"
+       else:
+            url = f"{MS_GAMES_URL_DEV.rstrip('/')}/game-store/v1/operaciones/juegos/parcial/{game_id}"    
+       
+    
+       headers = {k: v for k, v in request.headers.items() if k.lower() != "host"}
+       resp = await client.patch(
+            url,
+            headers=headers,
+            content=body,
+            params=request.query_params,
+            timeout=60.0
+        )
+       return Response(
+            content=resp.content, 
+            status_code=resp.status_code, 
+            headers=dict(resp.headers)
+        )

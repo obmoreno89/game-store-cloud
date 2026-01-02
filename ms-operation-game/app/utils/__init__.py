@@ -1,0 +1,1 @@
+from .uuid import generat_uuid

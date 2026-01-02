@@ -1,6 +1,6 @@
 from sqlmodel import Session, select
 from typing import List, Optional
-from app.schemas.list_games_models import ListGame, ListGameRead
+from app.schemas import ListGame
 
 def get_game_for_id(session: Session, game_id: int) -> Optional[ListGame]:
     statement = select(ListGame).where(ListGame.id == game_id)
