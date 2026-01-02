@@ -51,23 +51,24 @@ def game_for_id(session: Session = Depends(get_session), current_user: dict = De
 @router.patch("/game-store/v1/operaciones/juegos/parcial/{game_id}", response_model=ResponseGameUpdate, responses=UNAUTHORIZED_RESPONSE, dependencies=[Depends(auth_scheme)])
 def parcial_update(session: Session = Depends(get_session), current_user: dict = Depends(get_current_user), game_id: int = Path(), game_data: GameUpdate = Body()):
     folio = generat_uuid()
-    update_game, thereStock = patch_game(session, game_id, game_data)
+    update_game, there_stock = patch_game(session, game_id, game_data)
     
     if update_game is None:
         return Response(status_code=status.HTTP_204_NO_CONTENT)
     
-    if not thereStock:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail={
+    if game_data.stock is not None:
+        if not there_stock:
+         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail={
                 "folio": generat_uuid(),
                 "mensaje": "Stock insuficiente",
             })
-    if game_data.stock == 0:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail={
+        if game_data.stock == 0:
+         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail={
             "folio": generat_uuid(),
             "mensaje": "no puedes mandar un stock en 0"
         }) 
-    if game_data.stock < 0:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail={
+        if game_data.stock < 0:
+         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail={
             "folio": folio,
             "mensaje": "no se permite numeros en negativo"
             })      
@@ -76,4 +77,5 @@ def parcial_update(session: Session = Depends(get_session), current_user: dict =
         folio=folio,
         mensaje="Operación exitosa",
     )
+        
     
