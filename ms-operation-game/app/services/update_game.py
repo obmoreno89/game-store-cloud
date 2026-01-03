@@ -1,7 +1,7 @@
 from sqlmodel import Session, select
-from app.schemas.list_games_models import ListGame
+from app.schemas import ListGame, GameUpdate
 from fastapi import Body
-from app.schemas import GameUpdate
+
 
 
 def patch_game(session:Session, game_id: int, game_data: GameUpdate = Body()):

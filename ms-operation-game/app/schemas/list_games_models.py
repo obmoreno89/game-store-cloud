@@ -35,3 +35,4 @@ class ListGame(ListGameBase, table=True):
     __tablename__ = "list_game"
     
     id: Optional[int] = Field(default=None, primary_key=True)
+    name: str = Field(unique=True, index=True)

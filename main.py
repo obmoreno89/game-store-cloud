@@ -116,15 +116,27 @@ async def proxy_games_particial_update(request: Request, game_id: int, api_key: 
             headers=dict(resp.headers)
         )
        
-#@app.put("/juegos/crear/{game_id}")
-#async def proxy_games_update(request: Request, game_id: int, api_key: str = Depends(verify_api_key)):
-    #body = await request.body()
-    #async with httpx.AssyncClient() as client:
-        #if IS_PROD == "True":
-             #url = f"{MS_GAMES_URL.rstrip('/')}/game-store/v1/operaciones/juegos/crear/{game_id}"
-        #else:
-             #url = f"{MS_GAMES_URL_DEV.rstrip('/')}/game-store/v1/operaciones/juegos/crear/{game_id}"
+@app.post("/juegos/crear")
+async def proxy_create_games(request: Request, api_key: str = Depends(verify_api_key)):
+    body = await request.body()
+    async with httpx.AsyncClient() as client:
+        if IS_PROD == "True":
+             url = f"{MS_GAMES_URL.rstrip('/')}/game-store/v1/operaciones/juegos/crear"
+        else:
+             url = f"{MS_GAMES_URL_DEV.rstrip('/')}/game-store/v1/operaciones/juegos/crear"
              
-        #headers = {k: v for k, v in request.headers.items() if k.lower() != "host"}
+        headers = {k: v for k, v in request.headers.items() if k.lower() != "host"}
+        resp = await client.post(
+            url,
+            headers=headers,
+            content=body,
+            params=request._query_params,
+            timeout=60.0
+        )
+        return Response(
+            content=resp.content,
+            status_code=resp.status_code,
+            headers=dict(resp.headers)
+        )
          
                     

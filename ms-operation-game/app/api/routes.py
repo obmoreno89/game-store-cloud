@@ -3,8 +3,8 @@ from sqlmodel import Session
 from fastapi.security import HTTPBearer
 from app.utils import generat_uuid
 from app.db import get_session
-from app.services import get_all_games, get_game_for_id, patch_game, get_current_user
-from app.schemas import ResponseGames, ResponseGameId, ResponseGameUpdate, GameUpdate
+from app.services import get_all_games, get_game_for_id, patch_game, get_current_user, post_game
+from app.schemas import ResponseGames, ResponseGameId, ResponseGameUpdate, GameUpdate, ResponseCreateGame, GameCreate
 from app.api import UNAUTHORIZED_RESPONSE
 
 auth_scheme = HTTPBearer()
@@ -77,5 +77,14 @@ def parcial_update(session: Session = Depends(get_session), current_user: dict =
         folio=folio,
         mensaje="Operación exitosa",
     )
-        
+
+@router.post("/game-store/v1/operaciones/juegos/crear", response_model=ResponseCreateGame, responses=UNAUTHORIZED_RESPONSE, dependencies=[Depends(auth_scheme)])
+def create_game(session: Session = Depends(get_session), current_user: dict = Depends(get_current_user), game_data: GameCreate = Body()):
+    folio = generat_uuid()
+    new_game = post_game(session, game_data)
+    
+    return ResponseCreateGame(
+        folio= folio,
+        mensaje= "Operación exitosa"
+    )
     

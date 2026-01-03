@@ -14,5 +14,17 @@ class GameUpdate(BaseModel):
     platforms_pc_id: Optional[int] = Field(default=None, ge=1)
     platforms_ps_id: Optional[int] = Field(default=None, ge=1)
     
+class GameCreate(BaseModel):
+    stock: int = Field(ge=0)
+    name: str = Field(min_length=5, max_length=200)
+    background_image: str = None
+    price: int = Field(ge=100)
+    rating: float = Field(ge=0)
+    rating_top: int = Field(ge=1)
+    current: str = Field(min_length=2, max_length=5)
+    platforms_xbox_id: int = Field(ge=1)
+    platforms_pc_id: int = Field(ge=1)
+    platforms_ps_id: int = Field(ge=1)
+    
     
      
