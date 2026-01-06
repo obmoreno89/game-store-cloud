@@ -70,6 +70,31 @@ services:
       retries: 3
       start_period: 10s
 
+  ms-pagos:
+    build: ./ms-pay-method
+    container_name: ms-metodo-pagos
+    restart: on-failure
+    environment:
+      - IS_PROD=false
+      - DATABASE_URL_DEV=postgresql://omar:omar11mi@db:5432/storeGames
+    ports:
+      - '8003:8000'
+    networks:
+      - game-network
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test:
+        [
+          'CMD-SHELL',
+          'python3 -c ''import socket; s = socket.socket(); s.connect(("localhost", 8000))'' || exit 1',
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
   api-gateway:
     build: .
     container_name: api-gateway
@@ -78,6 +103,7 @@ services:
       - IS_PROD=false
       - MS_GAMES_URL_DEV=http://ms-juegos:8000
       - MS_TOKEN_URL_DEV=http://ms-token:8000
+      - MS_PAY_URL_DEV=http://ms-pay-method:8000
       - API_KEY_NAME=frontend-web
       - VALID_API_KEY=d92024fe3f2027d3bcca3dc5b0efdce85ea8ec5ca5f61eea352b40e344497397
     ports:

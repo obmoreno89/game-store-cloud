@@ -138,5 +138,9 @@ async def proxy_create_games(request: Request, api_key: str = Depends(verify_api
             status_code=resp.status_code,
             headers=dict(resp.headers)
         )
-         
+  
+@app.post("/metodos/pagos")
+async def proxy_pay(request: Request, api_key: str = Depends(verify_api_key)):
+    body = await request.body()
+    pass
                     

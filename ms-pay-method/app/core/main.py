@@ -4,8 +4,9 @@ from fastapi.exceptions import HTTPException
 from fastapi.security import HTTPBearer 
 from contextlib import asynccontextmanager
 from sqlmodel import SQLModel
-from db import engine
-from utils import generat_uuid
+from app.db import engine
+from app.utils import generat_uuid
+from app.schemas import OrderPay
 
 security = HTTPBearer()
 
@@ -42,7 +43,7 @@ async def custom_http_exeption_handler(request: Request, exc: HTTPException):
         headers=exc.headers
     )
     
-app.include_router(router)
+#app.include_router(router)
     
 
     
