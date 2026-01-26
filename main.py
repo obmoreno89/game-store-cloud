@@ -11,6 +11,8 @@ MS_TOKEN_URL = os.getenv("MS_TOKEN_URL")
 MS_TOKEN_URL_DEV = os.getenv("MS_TOKEN_URL_DEV")
 API_KEY_NAME = os.getenv("API_KEY_NAME")
 VALID_API_KEY = os.getenv("VALID_API_KEY")
+MS_PAY_URL = os.getenv("MS_PAY_URL")
+MS_PAY_URL_DEV = os.getenv("MS_PAY_URL_DEV")
 
 api_key_header = APIKeyHeader(name=API_KEY_NAME, auto_error=False)
 
@@ -139,8 +141,26 @@ async def proxy_create_games(request: Request, api_key: str = Depends(verify_api
             headers=dict(resp.headers)
         )
   
-@app.post("/metodos/pagos")
+@app.post("/metodos/orden")
 async def proxy_pay(request: Request, api_key: str = Depends(verify_api_key)):
     body = await request.body()
-    pass
+    async with httpx.AsyncClient() as client:
+        if IS_PROD == "True":
+             url = f"{MS_PAY_URL.rstrip('/')}/game-store/v1/metodos/orden"
+        else:
+             url = f"{MS_PAY_URL_DEV.rstrip('/')}/game-store/v1/metodos/orden"
+             
+        headers = {k: v for k, v in request.headers.items() if k.lower() != "host"}
+        resp = await client.post(
+            url,
+            headers=headers,
+            content=body,
+            params=request._query_params,
+            timeout=60.0
+        )
+        return Response(
+            content=resp.content,
+            status_code=resp.status_code,
+            headers=dict(resp.headers)
+        )
                     

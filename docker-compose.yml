@@ -72,7 +72,7 @@ services:
 
   ms-pagos:
     build: ./ms-pay-method
-    container_name: ms-metodo-pagos
+    container_name: ms-pagos
     restart: on-failure
     environment:
       - IS_PROD=false
@@ -103,7 +103,7 @@ services:
       - IS_PROD=false
       - MS_GAMES_URL_DEV=http://ms-juegos:8000
       - MS_TOKEN_URL_DEV=http://ms-token:8000
-      - MS_PAY_URL_DEV=http://ms-pay-method:8000
+      - MS_PAY_URL_DEV=http://ms-pagos:8000
       - API_KEY_NAME=frontend-web
       - VALID_API_KEY=d92024fe3f2027d3bcca3dc5b0efdce85ea8ec5ca5f61eea352b40e344497397
     ports:

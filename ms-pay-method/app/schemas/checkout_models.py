@@ -1,6 +1,8 @@
 from sqlmodel import Field, SQLModel
 
 class Order(SQLModel):
+    user_id: int = Field(index=True)
+    game_id: int
     folio: str = Field(primary_key=True)
     name: str = Field(index=True, max_length=200)
     unit: int

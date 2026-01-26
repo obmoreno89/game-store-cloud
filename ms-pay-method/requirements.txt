@@ -5,3 +5,5 @@ python-dotenv
 psycopg2-binary
 PyJWT
 python-multipart
+stripe
+httpx

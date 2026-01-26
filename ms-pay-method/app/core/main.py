@@ -7,6 +7,7 @@ from sqlmodel import SQLModel
 from app.db import engine
 from app.utils import generat_uuid
 from app.schemas import OrderPay
+from app.api import router
 
 security = HTTPBearer()
 
@@ -21,7 +22,7 @@ async def lifespan(app: FastAPI):
     
     print("Limpiando recurso")
 
-app = FastAPI(title="{URL}/game-store/v1/metodos/pagos", version= "1.0.0",
+app = FastAPI(title="{URL}/game-store/v1/metodos/orden", version= "1.0.0",
     description="API para generar metodo de pago", swagger_ui_parameters={"operationsSorter": "method"},
     lifespan=lifespan, 
     openapi_url="/openapi.json",
@@ -43,7 +44,7 @@ async def custom_http_exeption_handler(request: Request, exc: HTTPException):
         headers=exc.headers
     )
     
-#app.include_router(router)
+app.include_router(router)
     
 
     
