@@ -31,9 +31,9 @@ async def check_stock(game_id: int, quantity: int, token: str):
 
 async def create_payment_session(session: Session, order_data: RequestOrderPay, folio: str, token: str):
     
-    there__stock = await check_stock(order_data.game_id, order_data.unit, token)
+    there_stock = await check_stock(order_data.game_id, order_data.unit, token)
     
-    if not there__stock:
+    if not there_stock:
         return "Sin stock"
     
     unit_amount = int(order_data.price * 100)
