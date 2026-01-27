@@ -26,5 +26,7 @@ class GameCreate(BaseModel):
     platforms_pc_id: int = Field(ge=1)
     platforms_ps_id: int = Field(ge=1)
     
+class ReduceStock(BaseModel):
+    stock: int = Field(ge=1)
     
      

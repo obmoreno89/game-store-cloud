@@ -1,14 +1,19 @@
-from fastapi import APIRouter, Depends, Query, HTTPException, status, Response, Path, Body
+import os
+from fastapi import APIRouter, Depends, Query, HTTPException, status, Response, Path, Body, Header
 from sqlmodel import Session
 from fastapi.security import HTTPBearer
 from app.utils import generat_uuid
 from app.db import get_session
-from app.services import get_all_games, get_game_for_id, patch_game, get_current_user, post_game
-from app.schemas import ResponseGames, ResponseGameId, ResponseGameUpdate, GameUpdate, ResponseCreateGame, GameCreate
+from app.services import get_all_games, get_game_for_id, patch_game, get_current_user, post_game, reduce_stock
+from app.schemas import ResponseGames, ResponseGameId, ResponseGameUpdate, GameUpdate, ResponseCreateGame, GameCreate, ReduceStock
 from app.api import UNAUTHORIZED_RESPONSE
+
+
+SECRET_KEY_INTERNAL = os.getenv("SECRET_KEY_INTERNAL")
 
 auth_scheme = HTTPBearer()
 router = APIRouter(tags=["Operaciones Juegos"])
+
 
 @router.get("/game-store/v1/operaciones/juegos", response_model=ResponseGames, responses=UNAUTHORIZED_RESPONSE, dependencies=[Depends(auth_scheme)])
 def games(session: Session = Depends(get_session), current_user: dict = Depends(get_current_user), page: int = Query(default=1)):
@@ -59,12 +64,12 @@ def parcial_update(session: Session = Depends(get_session), current_user: dict =
     if game_data.stock is not None:
         if not there_stock:
          raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail={
-                "folio": generat_uuid(),
+                "folio": folio,
                 "mensaje": "Stock insuficiente",
             })
         if game_data.stock == 0:
          raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail={
-            "folio": generat_uuid(),
+            "folio": folio,
             "mensaje": "no puedes mandar un stock en 0"
         }) 
         if game_data.stock < 0:
@@ -88,3 +93,26 @@ def create_game(session: Session = Depends(get_session), current_user: dict = De
         mensaje= "Operación exitosa"
     )
     
+@router.patch("/game-store/v1/operaciones/juegos/reduce-stock/{game_id}")
+def reduce_stock_internal(game_id: int, game_data: ReduceStock = Body(), session: Session = Depends(get_session), x_internal_secret: str = Header(None)):
+    folio = generat_uuid()
+    
+    if x_internal_secret != SECRET_KEY_INTERNAL:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail={"folio": folio, "mensaje": "No estas autorizado"})
+    
+    game, there_stock = reduce_stock(session, game_id, game_data)
+    
+    if not there_stock:
+        return Response(status_code=status.HTTP_204_NO_CONTENT)
+    
+    if game.stock is None:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail={"folio": folio, "mensaje": "La cantidad del stock es requerida"})
+    
+    if game.stock < game_data.stock:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail={"folio": folio, "mensaje": "No hay unidades disponibles"})
+    
+   
+    return ResponseGameUpdate(
+        folio=folio,
+        mensaje="Operación exitosa",
+    )

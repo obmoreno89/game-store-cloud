@@ -4,7 +4,7 @@ from fastapi.security import HTTPBearer
 from app.utils import generat_uuid
 from app.schemas import OrderPayResponse, RequestOrderPay
 from app.db import get_session
-from app.services import get_current_user, create_payment_session
+from app.services import get_current_user, create_payment_session, process_stripe_event
 
 auth_scheme = HTTPBearer()
 router = APIRouter(tags=["Metodo Pago"])
@@ -36,4 +36,21 @@ async def order(request: Request, session: Session = Depends(get_session), curre
       mensaje="Operación exitosa",
       resultado={"url": new_order}
     )
+
+
+@router.post("/game-store/v1/metodos/webhooks/stripe")
+async def stripe_weebhook(request: Request, session: Session = Depends(get_session)):
+    payload = await request.body()
+    sig_header = request.headers.get("Stripe-Signature")
+    
+    if not sig_header:
+        raise HTTPException(status_code=400, detail="Falta firma de Stripe")
+    
+    success = await process_stripe_event(payload, sig_header, session)
+    
+    if success:
+        return {"status": "success"}
+    else:
+        raise HTTPException(status_code=400, detail="Error en webhook")
+    
     

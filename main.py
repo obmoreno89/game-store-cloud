@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Request, HTTPException, Depends, Response, status
+from fastapi import FastAPI, Request, HTTPException, Depends, Response, status, Header
 from fastapi.security import APIKeyHeader
 import httpx
 import os
@@ -117,6 +117,31 @@ async def proxy_games_particial_update(request: Request, game_id: int, api_key: 
             status_code=resp.status_code, 
             headers=dict(resp.headers)
         )
+
+@app.patch("/juegos/reduce-stock/{game_id}")
+async def proxy_games_reduce_stock(request: Request, game_id: int, x_internal_secret: str = Header(alias="x-internal-secret")):
+    body = await request.body()
+    async with httpx.AsyncClient() as client:
+       url: str
+       if IS_PROD == "True":
+            url = f"{MS_GAMES_URL.rstrip('/')}/game-store/v1/operaciones/juegos/reduce-stock/{game_id}"
+       else:
+            url = f"{MS_GAMES_URL_DEV.rstrip('/')}/game-store/v1/operaciones/juegos/reduce-stock/{game_id}"    
+       
+    
+       headers = {k: v for k, v in request.headers.items() if k.lower() != "host"}
+       resp = await client.patch(
+            url,
+            headers=headers,
+            content=body,
+            params=request.query_params,
+            timeout=60.0
+        )
+       return Response(
+            content=resp.content, 
+            status_code=resp.status_code, 
+            headers=dict(resp.headers)
+        )
        
 @app.post("/juegos/crear")
 async def proxy_create_games(request: Request, api_key: str = Depends(verify_api_key)):
@@ -140,6 +165,8 @@ async def proxy_create_games(request: Request, api_key: str = Depends(verify_api
             status_code=resp.status_code,
             headers=dict(resp.headers)
         )
+        
+
   
 @app.post("/metodos/orden")
 async def proxy_pay(request: Request, api_key: str = Depends(verify_api_key)):
