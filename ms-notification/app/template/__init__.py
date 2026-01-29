@@ -1,0 +1,1 @@
+from .pay_confirmation_email import html_pay_confirmation

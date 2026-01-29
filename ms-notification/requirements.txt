@@ -1,0 +1,11 @@
+fastapi
+uvicorn
+sqlmodel
+psycopg2-binary
+httpx
+fastapi-mail
+python-dotenv
+requests
+pydantic
+pydantic-settings
+jinja2

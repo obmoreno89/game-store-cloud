@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel,EmailStr, Field
 
 class RequestOrderPay(BaseModel):
     name: str = Field(index=True, max_length=200)
@@ -7,4 +7,8 @@ class RequestOrderPay(BaseModel):
     platforms_id: int = Field(ge=1)
     price: int = Field(ge=100)
     game_id: int = Field(ge=1)
-    
+
+class EmailRequest(BaseModel):
+    folio: str
+    email: str = EmailStr
+    game_name: str = Field(max_length=100)

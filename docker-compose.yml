@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   db:
     image: postgres:15
@@ -95,6 +93,37 @@ services:
       retries: 3
       start_period: 10s
 
+  ms-notificaciones:
+    build: ./ms-notification
+    container_name: ms-notificaciones
+    restart: on-failure
+    environment:
+      - IS_PROD=false
+      - DATABASE_URL_DEV=postgresql://omar:omar11mi@db:5432/storeGames
+      - MAIL_USERNAME=obmoreno89@gmail.com
+      - MAIL_PASSWORD=iowqfzqptmdmmtzr
+      - MAIL_SERVER=smtp.gmail.com
+      - MAIL_PORT=587
+      - MAIL_STARTTLS=True
+      - MAIL_SSL_TLS=False
+    ports:
+      - '8004:8000'
+    networks:
+      - game-network
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test:
+        [
+          'CMD-SHELL',
+          'python3 -c ''import socket; s = socket.socket(); s.connect(("localhost", 8000))'' || exit 1',
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
   api-gateway:
     build: .
     container_name: api-gateway
@@ -104,7 +133,8 @@ services:
       - MS_GAMES_URL_DEV=http://ms-juegos:8000
       - MS_TOKEN_URL_DEV=http://ms-token:8000
       - MS_PAY_URL_DEV=http://ms-pagos:8000
-      - API_KEY_NAME=frontend-web
+      - MS_NOTIFICATIONS_URL_DEV=http://ms-notificaciones:8000
+      - API_KEY_NAME=api-key
       - VALID_API_KEY=d92024fe3f2027d3bcca3dc5b0efdce85ea8ec5ca5f61eea352b40e344497397
     ports:
       - '8000:8000'

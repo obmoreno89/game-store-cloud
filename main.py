@@ -13,6 +13,8 @@ API_KEY_NAME = os.getenv("API_KEY_NAME")
 VALID_API_KEY = os.getenv("VALID_API_KEY")
 MS_PAY_URL = os.getenv("MS_PAY_URL")
 MS_PAY_URL_DEV = os.getenv("MS_PAY_URL_DEV")
+MS_NOTIFICATIONS_URL= os.getenv("MS_NOTIFICATIONS_URL")
+MS_NOTIFICATIONS_URL_DEV= os.getenv("MS_NOTIFICATIONS_URL_DEV")
 
 api_key_header = APIKeyHeader(name=API_KEY_NAME, auto_error=False)
 
@@ -191,3 +193,28 @@ async def proxy_pay(request: Request, api_key: str = Depends(verify_api_key)):
             headers=dict(resp.headers)
         )
                     
+                    
+@app.post("/notificaciones")
+async def proxy_notificacions(request: Request, x_internal_secret: str = Header(alias="x-internal-secret")):
+    body = await request.body()
+    async with httpx.AsyncClient() as client:
+       url: str
+       if IS_PROD == "True":
+            url = f"{MS_NOTIFICATIONS_URL.rstrip('/')}/game-store/v1/notificaciones"
+       else:
+            url = f"{MS_NOTIFICATIONS_URL_DEV.rstrip('/')}/game-store/v1/notificaciones"    
+       
+    
+       headers = {k: v for k, v in request.headers.items() if k.lower() != "host"}
+       resp = await client.post(
+            url,
+            headers=headers,
+            content=body,
+            params=request.query_params,
+            timeout=60.0
+        )
+       return Response(
+            content=resp.content, 
+            status_code=resp.status_code, 
+            headers=dict(resp.headers)
+        )
